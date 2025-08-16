@@ -1,1 +1,56 @@
-
+ 1 from abc import ABC, abstractmethod
+ 2 
+ 3 # Базовий інтерфейс
+ 4 class Coffee(ABC):
+ 5     @abstractmethod
+ 6     def cost(self):
+ 7         pass
+ 8     
+ 9     @abstractmethod
+10     def description(self):
+11         pass
+12 
+13 # Конкретний клас
+14 class SimpleCoffee(Coffee):
+15     def cost(self):
+16         return 10
+17     
+18     def description(self):
+19         return "Проста кава"
+20 
+21 # Базовий декоратор
+22 class CoffeeDecorator(Coffee):
+23     def __init__(self, coffee):
+24         self._coffee = coffee
+25     
+26     def cost(self):
+27         return self._coffee.cost()
+28     
+29     def description(self):
+30         return self._coffee.description()
+31 
+32 # Декоратор для молока
+33 class MilkDecorator(CoffeeDecorator):
+34     def cost(self):
+35         return self._coffee.cost() + 3
+36     
+37     def description(self):
+38         return self._coffee.description() + ", молоко"
+39 
+40 # Декоратор для цукру
+41 class SugarDecorator(CoffeeDecorator):
+42     def cost(self):
+43         return self._coffee.cost() + 1
+44     
+45     def description(self):
+46         return self._coffee.description() + ", цукор"
+47 
+48 # Використання
+49 coffee = SimpleCoffee()
+50 print(coffee.description(), "-", coffee.cost(), "грн")
+51 
+52 coffee_with_milk = MilkDecorator(coffee)
+53 print(coffee_with_milk.description(), "-", coffee_with_milk.cost(), "грн")
+54 
+55 coffee_with_milk_sugar = SugarDecorator(coffee_with_milk)
+56 print(coffee_with_milk_sugar.description(), "-", coffee_with_milk_sugar.cost(), "грн")  
