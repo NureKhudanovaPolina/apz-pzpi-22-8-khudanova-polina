@@ -1,1 +1,145 @@
+Міністерство освіти та науки України
+Харківський національний університет
+радіоелектроніки
+
+
+Кафедра ПІ
+
+
+Звіт
+З лабораторної роботи 2
+з дисципліни «Архітектура програмного забезпечення»
+на тему: «Розробка програмної архітектури, створення та
+відлагодження програмного коду серверної частини
+програмної системи»
+
+
+
+Виконала:	Перевірив:
+ст. гр. ПЗПІ-22-8	ст. викладач Сокорчук І.П.
+Худанова П.А.	 
+
+
+Харків 2025
+
+
+
+
+
+
+ 
+Мета роботи:
+Потрібно розробити серверну / back-end частину програмної системи.
+
+Історія змін:
+№	Дата	Версія	Опис змін	Автор
+1	18.08.2025	0.1	Створено структуру звіту	Худанова Поліна
+2	18.08.2025	0.2	Додано діаграми та інженерні рішення	Худанова Поліна
+3	18.08.2025	1.0	Фіналізовано звіт	Худанова Поліна
+
+Опис виконаної роботи:
+Під час виконання лабораторної роботи було розроблено серверну частину програмної системи PawTracker. На початковому етапі я визначила, що найзручнішою архітектурою для взаємодії клієнта з сервером буде REST API, оскільки він дозволяє організувати обмін даними за допомогою стандартних HTTP-запитів і легко інтегрується з веб- та мобільними додатками.
+Під час роботи було створено базу даних pet_health з таблицями users і pets. Таблиця users містить інформацію про користувачів, включаючи id, ім’я, email та хешований пароль. Таблиця pets зберігає дані про тварин, включаючи id, ім’я, вид, породу та ownerId, який є зовнішнім ключем на користувача.
+Реалізовано маршрути для реєстрації (/auth/register) та логіну (/auth/login). Реєстрація дозволяє створити нового користувача з хешованим паролем, а логін перевіряє email і пароль, видаючи JWT для подальшого доступу до API.
+Для тварин реалізовано CRUD операції: отримання списку тварин користувача (GET /pets), додавання нової тварини (POST /pets), редагування (PUT /pets/:id) та видалення (DELETE /pets/:id). Всі маршрути захищені middleware, який перевіряє дійсний JWT перед виконанням дій.
+Для зручності тестування використано Swagger UI з документом OpenAPI, який дозволяє перевіряти роботу API без використання сторонніх інструментів. Було перевірено реєстрацію, логін, додавання, редагування, видалення та перегляд тварин через Swagger UI і Curl. Дані коректно зберігаються у базі MySQL і не зникають після перезапуску сервера.
+
+Висновки:
+У результаті виконання лабораторної роботи створено серверну частину програмної системи PawTracker, яка реалізує основні функції: авторизацію, управління користувачами та тваринами, моніторинг активності та здоров’я. Серверна частина побудована за принципами REST API, що забезпечує масштабованість та можливість легкої інтеграції з веб- і мобільними клієнтами.
+
+
+
+ДОДАТОК А
+Посилання на відеозапис доповіді
+
+Відеозапис доповіді на YouTube: https://youtu.be/De1HOty9_0w
+Нижче наведено хронологічний опис доповіді.
+00:00 – Вступ
+0:25 – Функція реєстрації користувача
+1:10 – Функція авторизації користувача
+01:50 – Функція отримання списку тварин
+02:00 – Функція додавання тварин
+02:47 – Функція редагування тварин
+03:21 – Функції видалення тварин
+
+
+
+
+ДОДАТОК Б
+
+ 
+Рисунок Б.1 — ER-діаграма даних
+ 
+Рисунок Б.2 — Діаграма розгортання
+ 
+Рисунок Б.3 — UML-діаграма прецедентів
+
+ 
+Рисунок Б.4 — Діаграма компонентів
+
+
+
+
+
+ДОДАТОК В
+Програмний код
+
+В.1 Реєстрація та логін користувача
+GitHub репозиторій: https://github.com/NureKhudanovaPolina/apz-pzpi-22-8-khudanova-polina/blob/main/Lab2/pzpi-22-8-khudanova-polina-lab2/auth.js
+1  router.post('/register', async (req, res) => {
+2    try {
+3      const { name, email, password } = req.body;
+4      if (!name || !email || !password) return res.status(400).json({ error: "Всі поля обов'язкові" });
+5
+6      const [existing] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+7      if (existing.length > 0) return res.status(400).json({ error: "Користувач вже існує" });
+8
+9      const hashedPassword = await bcrypt.hash(password, 10);
+10     await db.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hashedPassword]);
+11
+12     res.json({ message: "Користувач зареєстрований" });
+13   } catch (err) {
+14     console.error(err);
+15     res.status(500).json({ error: "Помилка сервера" });
+16   }
+17 });
+18
+19 router.post('/login', async (req, res) => {
+20   try {
+21     const { email, password } = req.body;
+22     const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+23     if (rows.length === 0) return res.status(400).json({ error: "Невірний email або пароль" });
+24
+25     const user = rows[0];
+26     const isMatch = await bcrypt.compare(password, user.password);
+27     if (!isMatch) return res.status(400).json({ error: "Невірний email або пароль" });
+28
+29     const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
+30     res.json({ message: "Успішний вхід", token });
+31   } catch (err) {
+32     console.error(err);
+33     res.status(500).json({ error: "Помилка сервера" });
+34   }
+35 });
+
+
+
+В.2 POST /pets і GET /pets для тварин
+GitHub репозиторій: https://github.com/NureKhudanovaPolina/apz-pzpi-22-8-khudanova-polina/blob/main/Lab2/pzpi-22-8-khudanova-polina-lab2/pets.js
+
+1  router.get('/', authMiddleware, async (req, res) => {
+2    const [rows] = await db.query('SELECT * FROM pets WHERE ownerId = ?', [req.user.id]);
+3    res.json(rows);
+4  });
+5
+6  router.post('/', authMiddleware, async (req, res) => {
+7    const { name, species, breed } = req.body;
+8    const [result] = await db.query(
+9      'INSERT INTO pets (name, species, breed, ownerId) VALUES (?, ?, ?, ?)',
+10     [name, species, breed, req.user.id]
+11   );
+12   const [rows] = await db.query('SELECT * FROM pets WHERE id = ?', [result.insertId]);
+13   res.json(rows[0]);
+14 });
+
 
