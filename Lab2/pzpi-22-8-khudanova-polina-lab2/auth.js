@@ -2,41 +2,48 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const db = require('../db');
 
-const SECRET_KEY = "supersecret"; // ключ для JWT
+const SECRET_KEY = "supersecret";
 
-// Тимчасові дані користувачів
-let users = [];
-
-// POST /register
+// Реєстрація
 router.post('/register', async (req, res) => {
-  const { name, email, password } = req.body; // тут req.body тепер буде визначений
-  if (!name || !email || !password) return res.status(400).json({ error: "Всі поля обов'язкові" });
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) return res.status(400).json({ error: "Всі поля обов'язкові" });
 
-  const existingUser = users.find(u => u.email === email);
-  if (existingUser) return res.status(400).json({ error: "Користувач вже існує" });
+    const [existing] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    if (existing.length > 0) return res.status(400).json({ error: "Користувач вже існує" });
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const newUser = { id: users.length + 1, name, email, password: hashedPassword };
-  users.push(newUser);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await db.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hashedPassword]);
 
-  res.json({ message: "Користувач зареєстрований" });
+    res.json({ message: "Користувач зареєстрований" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Помилка сервера" });
+  }
 });
 
-// POST /login
+// Логін
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-  const user = users.find(u => u.email === email);
-  if (!user) return res.status(400).json({ error: "Невірний email або пароль" });
+  try {
+    const { email, password } = req.body;
+    const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    if (rows.length === 0) return res.status(400).json({ error: "Невірний email або пароль" });
 
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(400).json({ error: "Невірний email або пароль" });
+    const user = rows[0];
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ error: "Невірний email або пароль" });
 
-  const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
-  res.json({ message: "Успішний вхід", token });
+    const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
+    res.json({ message: "Успішний вхід", token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Помилка сервера" });
+  }
 });
 
-// Мідлвар для перевірки токена
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: "Токен відсутній" });
