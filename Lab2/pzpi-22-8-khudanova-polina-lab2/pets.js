@@ -1,49 +1,43 @@
 const express = require('express');
 const router = express.Router();
 const { authMiddleware } = require('./auth');
-
-// Тимчасові дані
-let pets = [
-  { id: 1, name: "Барсік", species: "кіт", breed: "сибірська", ownerId: 1 },
-  { id: 2, name: "Рекс", species: "собака", breed: "лабрадор", ownerId: 1 }
-];
+const db = require('../db');
 
 // GET /pets
-router.get('/', authMiddleware, (req, res) => {
-  const userPets = pets.filter(p => p.ownerId === req.user.id);
-  res.json(userPets);
+router.get('/', authMiddleware, async (req, res) => {
+  const [rows] = await db.query('SELECT * FROM pets WHERE ownerId = ?', [req.user.id]);
+  res.json(rows);
 });
 
 // POST /pets
-router.post('/', authMiddleware, (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   const { name, species, breed } = req.body;
-  if (!name || !species || !breed) return res.status(400).json({ error: "Вкажіть name, species і breed" });
-
-  const newPet = { id: pets.length + 1, name, species, breed, ownerId: req.user.id };
-  pets.push(newPet);
-  res.json(newPet);
+  const [result] = await db.query(
+    'INSERT INTO pets (name, species, breed, ownerId) VALUES (?, ?, ?, ?)',
+    [name, species, breed, req.user.id]
+  );
+  const [rows] = await db.query('SELECT * FROM pets WHERE id = ?', [result.insertId]);
+  res.json(rows[0]);
 });
 
 // PUT /pets/:id
-router.put('/:id', authMiddleware, (req, res) => {
-  const pet = pets.find(p => p.id == req.params.id && p.ownerId === req.user.id);
-  if (!pet) return res.status(404).json({ error: "Тварина не знайдена" });
-
+router.put('/:id', authMiddleware, async (req, res) => {
   const { name, species, breed } = req.body;
-  if (name) pet.name = name;
-  if (species) pet.species = species;
-  if (breed) pet.breed = breed;
-
-  res.json(pet);
+  await db.query(
+    'UPDATE pets SET name = ?, species = ?, breed = ? WHERE id = ? AND ownerId = ?',
+    [name, species, breed, req.params.id, req.user.id]
+  );
+  const [rows] = await db.query('SELECT * FROM pets WHERE id = ?', [req.params.id]);
+  res.json(rows[0]);
 });
 
 // DELETE /pets/:id
-router.delete('/:id', authMiddleware, (req, res) => {
-  const index = pets.findIndex(p => p.id == req.params.id && p.ownerId === req.user.id);
-  if (index === -1) return res.status(404).json({ error: "Тварина не знайдена" });
+router.delete('/:id', authMiddleware, async (req, res) => {
+  const [rows] = await db.query('SELECT * FROM pets WHERE id = ? AND ownerId = ?', [req.params.id, req.user.id]);
+  if (rows.length === 0) return res.status(404).json({ error: "Тварина не знайдена" });
 
-  const deleted = pets.splice(index, 1);
-  res.json({ message: "Тварина видалена", pet: deleted[0] });
+  await db.query('DELETE FROM pets WHERE id = ? AND ownerId = ?', [req.params.id, req.user.id]);
+  res.json({ message: "Тварина видалена", pet: rows[0] });
 });
 
 module.exports = router;
