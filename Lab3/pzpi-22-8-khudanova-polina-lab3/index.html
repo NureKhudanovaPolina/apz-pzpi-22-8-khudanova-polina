@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pets App</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="auth-container">
+  <h2>Логін</h2>
+  <input type="email" id="login-email" placeholder="Email">
+  <input type="password" id="login-password" placeholder="Пароль">
+  <button id="login-btn">Увійти</button>
+  <p>Немає акаунту? <span id="show-register" style="color:blue;cursor:pointer;">Реєстрація</span></p>
+
+  <div id="register-form" style="display:none; margin-top:10px;">
+    <input type="text" id="register-name" placeholder="Ім'я">
+    <input type="email" id="register-email" placeholder="Email">
+    <input type="password" id="register-password" placeholder="Пароль">
+    <button id="register-btn">Зареєструватися</button>
+    <p><span id="show-login" style="color:blue;cursor:pointer;">Повернутися до логіну</span></p>
+  </div>
+</div>
+
+<div id="app-container" style="display:none; width: 420px;">
+  <div id="top-container" style="background:#fff; padding:15px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-bottom:15px;">
+    <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:10px;">
+      <h2>Мої тварини</h2>
+      <button id="logout-btn" class="delete-btn">Вийти</button>
+    </div>
+    <button id="add-pet-btn" style="width:100%; margin-top:5px;">Додати тварину</button>
+
+    <div id="add-pet-form" style="display:none; margin-top:10px;">
+      <input type="text" id="pet-name" placeholder="Ім'я">
+      <input type="text" id="pet-species" placeholder="Вид">
+      <input type="text" id="pet-breed" placeholder="Порода">
+      <button id="save-pet-btn">Зберегти</button>
+    </div>
+  </div>
+
+  <div id="pets-container"></div>
+</div>
+
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+/* Основний стиль */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #eef2f3;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Контейнери */
+#auth-container, #app-container {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 420px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Поля вводу */
+input {
+  display: block;
+  margin: 6px 0;
+  padding: 6px 10px;
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+/* Кнопки основні */
+button {
+  padding: 8px 15px; /* трохи вище для ширини */
+  margin-top: 5px;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  background-color: #4CAF50;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center; /* текст по центру */
+  width: 100%; /* кнопки на всю ширину контейнера */
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+/* Кнопка видалення червона */
+.delete-btn {
+  background-color: #e74c3c;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
+
+#pets-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* центруємо, якщо ряд неповний */
+  gap: 20px;
+}
+
+.pet-card {
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  width: 180px;             /* більші квадратні картки */
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.pet-card .pet-name {
+  font-size: 18px;           /* велике ім'я */
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.pet-card .pet-info {
+  font-size: 13px;           /* менший текст для виду, породи, віку */
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.pet-card .delete-btn {
+  width: 100%;
+  padding: 8px;
+  font-size: 13px;
+}
+
+
+.pet-card div {
+  margin: 4px 0;
+  font-size: 13px;
+}
+
+/* Кнопки всередині картки */
+.pet-card button {
+  margin: 5px 0;
+  font-size: 13px;
+  width: 100%; /* на всю ширину картки */
+  text-align: center;
+}
+
+/* Стрілка для деталей */
+.toggle-details {
+  cursor: pointer;
+  font-weight: bold;
+  display: inline-block;
+  margin-left: 5px;
+  transform: rotate(0deg);
+  transition: 0.3s;
+}
+
+.toggle-details.open {
+  transform: rotate(180deg);
+}
+
+.pet-details {
+  display: none;
+  font-size: 12px;
+  color: #555;
+  margin-top: 3px;
+}
+ 
+@media (max-width: 500px) {
+  .pet-card {
+    width: 45%;   /* дві картки в ряд на маленьких екранах */
+}}
+
+.delete-btn {
+  background-color: #e74c3c;
+  color: white;
+  font-weight: bold;
+  border-radius: 6px;
+  border: none;
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: 0.3s;
+   width: 80px;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
