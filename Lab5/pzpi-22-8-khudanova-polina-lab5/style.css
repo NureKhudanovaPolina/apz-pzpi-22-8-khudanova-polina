@@ -1,0 +1,128 @@
+/* Загальні стилі */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f0f2f5;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+#auth-container, #app-container {
+  background: white;
+  padding: 25px 30px;
+  margin-top: 50px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  width: 400px;
+  max-width: 95%;
+  transition: all 0.3s ease;
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+}
+
+input {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  font-size: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  transition: border 0.3s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #28a745;
+  box-shadow: 0 0 5px rgba(40,167,69,0.5);
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.green-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.red-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.link-btn {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.pet-card {
+  background: #ffffff;
+  padding: 15px 20px;
+  margin: 12px 0;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.pet-card:hover {
+  transform: translateY(-2px);
+}
+
+.pet-card div {
+  margin: 5px 0;
+}
+
+.delete-btn {
+  width: auto;
+  padding: 6px 12px;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+/* Кнопки зверху в додатку */
+#app-container button {
+  width: auto;
+  margin-right: 8px;
+}
+
+/* Форма додавання тварини */
+#add-pet-form input {
+  margin-bottom: 8px;
+}
+
+/* Адаптивність */
+@media (max-width: 480px) {
+  #auth-container, #app-container {
+    width: 95%;
+    padding: 20px;
+  }
+
+  button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .pet-card {
+    padding: 12px 15px;
+  }
+}
